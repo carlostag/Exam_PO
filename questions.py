@@ -1012,11 +1012,11 @@ RAW_QUESTION_BANK = [
     },
     {
         "unit": "Unit 9 - Resource Allocation Optimisation",
-        "question": "Who are the instructors listed on the cover slides for Unit 9: Resource Allocation Optimisation?",
+        "question": "What does an optimality GAP percentage setting control inside an exact mathematical program solver?",
         "options": [
-            "Raul Poler exclusively",
-            "Beatriz Andres & Raul Poler jointly",
-            "Beatriz Andres exclusively"
+            "The variance limit between permanent operators and temporary project personnel",
+            "The threshold that permits the solver to terminate when a solution is proven to be within a certain percentage of the theoretical global optimum",
+            "The number of downstream successor activities allowed to run in parallel"
         ],
         "correct": 1
     }
