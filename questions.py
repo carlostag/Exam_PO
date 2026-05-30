@@ -1,7 +1,7 @@
 # questions.py
 import random
 
-# Complete Master Exam Database (Exactly 100 Questions calibrated to match the sample test definitions)
+# Complete Master Exam Database (Exactly 100 Conceptual Questions grouped by unit)
 RAW_QUESTION_BANK = [
     # === UNIT 1: AGGREGATE PLANNING OPTIMISATION (11 Questions) ===
     {
@@ -106,13 +106,13 @@ RAW_QUESTION_BANK = [
     },
     {
         "unit": "Unit 1 - Aggregate Planning Optimisation",
-        "question": "Which software utility framework is recommended in the MUCEIM slides to model and solve the aggregate planning MILP equations?",
+        "question": "What does a 'Mixed Strategy' in Aggregate Production Planning combine?",
         "options": [
-            "Excel Goal Seek menus exclusively",
-            "Pyomo mathematical modeling language in Python",
-            "Simulink block diagrams in MATLAB"
+            "Elements of both chase and level strategies, adjusting workforce and inventory levels concurrently to minimize costs",
+            "Continuous linear variables with non-linear exponential setup parameters",
+            "BOM explosion charts with local Tabu search lists"
         ],
-        "correct": 1
+        "correct": 0
     },
 
     # === UNIT 2: MATERIALS REQUIREMENT PLANNING OPTIMISATION (11 Questions) ===
@@ -564,11 +564,11 @@ RAW_QUESTION_BANK = [
     },
     {
         "unit": "Unit 5 - Job Shop Scheduling Optimisation",
-        "question": "What is the role of a 'converter' when working with Taillard instances for a Job Shop scheduling project?",
+        "question": "Which scheduling problem is considered more complex to solve exactly: an M-machine Permutation Flow Shop or an M-machine Job Shop with diverse routings?",
         "options": [
-            "To parse and translate the instance text file into matrices of machine order sequences and operation processing times for your code",
-            "To automatically convert continuous variables into binary integers",
-            "To compute line balance efficiency scores"
+            "The Job Shop problem, due to the customized, independent routing combinations available for each job",
+            "The Permutation Flow Shop, because all jobs must follow the exact same machine sequence",
+            "They possess identical computational structures and matching search space dimensions"
         ],
         "correct": 0
     },
@@ -972,16 +972,6 @@ RAW_QUESTION_BANK = [
     },
     {
         "unit": "Unit 9 - Resource Allocation Optimisation",
-        "question": "What does an automated 'synthetic data generator' do within a scheduling research script?",
-        "options": [
-            "It generates random test problems bounded between a minimum and maximum number of tasks and resources to benchmark algorithm performance",
-            "It automatically extracts completed solution source code from web repositories",
-            "It computes the line efficiency metrics for an assembly line layout"
-        ],
-        "correct": 0
-    },
-    {
-        "unit": "Unit 9 - Resource Allocation Optimisation",
         "question": "What happens to the computational performance of an exact MILP solver as resource allocation datasets scale up to very large sizes?",
         "options": [
             "The computation time drops to near zero due to linear relaxation traits",
@@ -1012,11 +1002,21 @@ RAW_QUESTION_BANK = [
     },
     {
         "unit": "Unit 9 - Resource Allocation Optimisation",
-        "question": "What structural file format must be used to submit your completed homework tasks for evaluation to PoliformaT?",
+        "question": "What does 'under-utilization' of an employee or machine asset incur inside allocation math?",
         "options": [
-            "A raw uncompressed folder structure containing Python files",
-            "A single ZIP file containing your report template (in both DOCX and PDF formats) alongside your Python source code files",
-            "An Excel spreadsheet file containing your raw output matrices"
+            "An efficiency penalty or fiscal waste because structural capacity is fully financed but left idle",
+            "An automatic elimination of project timeline deadlines",
+            "A structural transition from a generalized assignment to an ordinary matching matrix"
+        ],
+        "correct": 0
+    },
+    {
+        "unit": "Unit 9 - Resource Allocation Optimisation",
+        "question": "Who are the instructors listed on the cover slides for Unit 9: Resource Allocation Optimisation?",
+        "options": [
+            "Raul Poler exclusively",
+            "Beatriz Andres & Raul Poler jointly",
+            "Beatriz Andres exclusively"
         ],
         "correct": 1
     }
@@ -1028,8 +1028,6 @@ def get_blueprint_exam():
     and exactly 12 questions from Unit 5, matching the official 100-question distribution blueprint.
     """
     exam_list = []
-    
-    # Categorize questions by unit
     by_unit = {}
     for q in RAW_QUESTION_BANK:
         u = q["unit"]
@@ -1037,12 +1035,9 @@ def get_blueprint_exam():
             by_unit[u] = []
         by_unit[u].append(q)
         
-    # Apply strict selection logic per unit name
     for unit_name, questions in by_unit.items():
         shuffled_pool = list(questions)
         random.shuffle(shuffled_pool)
-        
-        # Unit 5 gets 12 items, others get 11
         target_count = 12 if "Unit 5" in unit_name else 11
         exam_list.extend(shuffled_pool[:target_count])
         
