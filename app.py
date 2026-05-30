@@ -1,7 +1,6 @@
 import streamlit as st
 import time
 import pandas as pd
-# Pull the raw question pool directly from your questions.py file
 from questions import RAW_QUESTION_BANK
 
 # 1. SESSION STATE INITIALIZATION
@@ -19,41 +18,31 @@ if "exam_submitted" not in st.session_state:
 # 2. APP HEADER
 st.set_page_config(page_title="Production Optimisation Simulator", layout="centered")
 st.title("🏭 Production Optimisation Exam Simulator")
-st.subheader("MUCEIM - Master's in Computational Engineering & Industrial Mathematics")
+st.subheader("MUCEIM - Master's Degree in Computational Engineering & Industrial Mathematics")
 
-# 3. CONFIGURATION SCREEN (Before Exam Starts)
+# 3. CONFIGURATION SCREEN
 if not st.session_state.exam_started:
     st.markdown(
         f"""
-        **Official Exam Specification Framework:**
-        * **Total Available Database Question Pool:** {len(RAW_QUESTION_BANK)} items
-        * **Standard Exam Length:** 100 questions (randomly pulled from pool)
-        * **Time Limit:** 60 Minutes (36 seconds per question target pace)
-        * **Grading Protocol:** Correct: `+1 point` | Incorrect: `-0.5 points` | Unanswered/Skipped: `0 points`
-        * **Final Calibration:** Points achieved divided by 10 (Maximum reachable grade: `10.0`)
+        ### **Official Exam Specification Blueprint:**
+        * **Total Database Size:** {len(RAW_QUESTION_BANK)} calibrated questions.
+        * **Strict Distribution Structure:**
+          * *Units 1, 2, 3, 4, 6, 7, 8, 9:* **11 questions each**
+          * *Unit 5 (Job Shop Optimization):* **12 questions**
+          * *Total Exam Length:* **100 Multiple-Choice Questions**
+        * **Time Allowed:** 60 Minutes (Hard limit | 36 seconds average pace target)
+        * **Grading System Protocol:** Correct: `+1` | Incorrect: `-0.5` | Unanswered: `0`
+        * **Final Calibration:** Total points achieved divided by 10 (Highest reachable grade: `10.0`)
         """
     )
     st.divider()
     
-    # Select desired number of questions
-    max_available = len(RAW_QUESTION_BANK)
-    default_selection = min(100, max_available)
-    
-    selected_num = st.slider(
-        "🎛️ Select the number of simulation questions to pull:",
-        min_value=5,
-        max_value=max_available,
-        value=default_selection,
-        step=5
-    )
-    
-    st.write(f"Your selected pace target: **{round((60 * 60) / selected_num, 1)} seconds** per question.")
-
-    if st.button("🚀 Start Production Optimisation Exam", type="primary", use_container_width=True):
-        from questions import get_randomized_exam
-        st.session_state.active_questions = get_randomized_exam(selected_num)
+    if st.button("🚀 Start 100-Question Blueprint Exam", type="primary", use_container_width=True):
+        from questions import get_blueprint_exam
+        # Generate the structured question matrix
+        st.session_state.active_questions = get_blueprint_exam()
         
-        # Ensure user_answers dictionary is cleanly pre-populated
+        # Pre-populate tracking maps cleanly
         st.session_state.user_answers = {i: None for i in range(len(st.session_state.active_questions))}
         st.session_state.start_time = time.time()
         st.session_state.exam_started = True
@@ -62,19 +51,15 @@ if not st.session_state.exam_started:
 
 # 4. LIVE EXAM MODE
 if st.session_state.exam_started and not st.session_state.exam_submitted:
-    
-    # Timer logic
-    TOTAL_EXAM_SECONDS = 60 * 60  # 60 minutes
+    TOTAL_EXAM_SECONDS = 60 * 60  
     elapsed_time = time.time() - st.session_state.start_time
     remaining_seconds = max(0, TOTAL_EXAM_SECONDS - elapsed_time)
     
-    # Auto-submit trigger if time runs out
     if remaining_seconds <= 0:
         st.session_state.exam_submitted = True
-        st.error("⏰ Time has expired! Your responses have been automatically submitted.")
+        st.error("⏰ Time has expired! Your answers have been automatically submitted.")
         st.rerun()
         
-    # Render visible timer metrics
     mins, secs = divmod(int(remaining_seconds), 60)
     timer_col, progress_col = st.columns([1, 3])
     with timer_col:
@@ -82,17 +67,16 @@ if st.session_state.exam_started and not st.session_state.exam_submitted:
     with progress_col:
         answered_count = sum(1 for v in st.session_state.user_answers.values() if v is not None)
         total_q = len(st.session_state.active_questions)
-        st.progress(answered_count / total_q, text=f"Progress: {answered_count}/{total_q} Questions Completed")
+        st.progress(answered_count / total_q, text=f"Progress: {answered_count}/{total_q} Questions Answered")
         
     st.divider()
 
-    # Form containing quiz questions
     with st.form("exam_form"):
         for idx, q in enumerate(st.session_state.active_questions):
-            st.markdown(f"#### **Q{idx+1}. [{q['unit']}] {q['question']}**")
+            st.markdown(f"#### **Q{idx+1}. {q['question']}**")
+            st.caption(f"📍 Source Block: *{q['unit']}*")
             
             saved_answer = st.session_state.user_answers.get(idx)
-            
             current_selection = st.radio(
                 f"Select option for Q{idx+1}:",
                 options=q["options"],
@@ -101,16 +85,15 @@ if st.session_state.exam_started and not st.session_state.exam_submitted:
                 label_visibility="collapsed"
             )
             st.session_state.user_answers[idx] = current_selection
-            st.write("") # Spacer
+            st.write("") 
             
         st.divider()
         submit_btn = st.form_submit_button("Submit Exam Answers", type="primary", use_container_width=True)
-        
         if submit_btn:
             st.session_state.exam_submitted = True
             st.rerun()
 
-# 5. RESULTS & GRADING SCREEN
+# 5. RESULTS SCREEN
 if st.session_state.exam_submitted:
     st.header("📊 Performance Dashboard")
     
@@ -139,39 +122,28 @@ if st.session_state.exam_submitted:
             
         detailed_log.append({
             "Question": f"Q{idx+1}",
-            "Unit Source": q["unit"],
+            "Unit Category": q["unit"],
             "Your Selection": user_choice if user_choice else "Skipped",
             "Correct Answer": correct_option_text,
             "Status": status,
             "Points Gained": score_impact
         })
         
-    # Calculate Score Points
     raw_score = (correct_count * 1) + (incorrect_count * -0.5)
+    scaled_grade = max(0.0, raw_score / 10) # Points divided by 10
     
-    # Official scale rule: points achieved divided by 10 (capped dynamically if pulling fewer than 100 items)
-    if total_q == 100:
-        scaled_grade = raw_score / 10
-    else:
-        # Balanced scaling adjustment for alternative testing sizes
-        scaled_grade = (raw_score / total_q) * 10 if total_q > 0 else 0
-        
-    final_calibrated_grade = max(0.0, round(scaled_grade, 2))
-    
-    # Display Score Metrics
     score_col1, score_col2, score_col3 = st.columns(3)
-    score_col1.metric("Final Scale Mark (/10.0)", f"{final_calibrated_grade}/10.0")
-    score_col2.metric("Raw Evaluation Balance", f"{raw_score} pts")
-    score_col3.metric("True Precision Rate", f"{round((correct_count/total_q)*100, 1) if total_q > 0 else 0}%")
+    score_col1.metric("Final Calibrated Mark (/10.0)", f"{round(scaled_grade, 2)}/10.0")
+    score_col2.metric("Raw Net Points Balance", f"{raw_score} pts")
+    score_col3.metric("True Selection Precision", f"{round((correct_count/total_q)*100, 1)}%")
     
-    st.subheader("Distribution Balance Breakdown")
+    st.subheader("Distribution Summary")
     col_c, col_i, col_u = st.columns(3)
     col_c.success(f"🟢 Correct Answers: {correct_count}")
     col_i.error(f"🔴 Incorrect Errors: {incorrect_count}")
     col_u.info(f"⚪ Skipped/Unanswered: {unanswered_count}")
     
-    # Detail Review Table
-    st.subheader("📋 Granular Solution Review")
+    st.subheader("📋 Detailed Review Matrix")
     df_review = pd.DataFrame(detailed_log)
     
     def highlight_status(val):
